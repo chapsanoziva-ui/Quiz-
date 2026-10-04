@@ -1,0 +1,18 @@
+{
+  "name": "Computer Science Revision Quiz",
+  "short_name": "CS Quiz",
+  "description": "Offline Computer Science Revision Quiz made by Chaps.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#eef3f8",
+  "theme_color": "#1f4e79",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

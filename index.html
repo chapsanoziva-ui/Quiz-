@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1f4e79">
+<meta name="description" content="Offline Computer Science Revision Quiz made by Chaps">
+<link rel="manifest" href="manifest.json">
+<title>Computer Science Revision Quiz</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#eef3f8;color:#222}
+.wrap{max-width:680px;margin:0 auto;padding:16px}
+h1{color:#1f4e79;text-align:center;margin:10px 0 4px;font-size:25px}
+.sub{text-align:center;color:#555;margin-bottom:16px}
+.card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 2px 7px rgba(0,0,0,.15)}
+select,button{font-size:16px;padding:12px;border-radius:8px;border:2px solid #1f4e79}
+select{width:100%;margin:8px 0 14px;background:#fff}
+button{background:#1f4e79;color:#fff;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+.full{width:100%}
+.top{display:flex;justify-content:space-between;gap:8px;font-weight:bold;margin-bottom:10px;color:#1f4e79}
+.q{font-size:18px;line-height:1.4;margin:10px 0 14px}
+.opt{display:block;width:100%;text-align:left;background:#fff;color:#222;margin-bottom:8px;border-color:#aac}
+.opt:hover:not(:disabled){background:#dbe9f6}
+.opt.right{background:#d4efdf;border-color:#27ae60}
+.opt.wrong{background:#fadbd8;border-color:#c0392b}
+#feedback{margin:10px 0;padding:10px;border-radius:8px;background:#fef9e7;display:none}
+.bar{height:8px;background:#ddd;border-radius:4px;margin-bottom:12px;overflow:hidden}
+#prog{height:100%;width:0;background:#2e75b6}
+.big{font-size:40px;text-align:center;font-weight:bold;color:#1f4e79}
+.hidden{display:none}
+#time.low{color:#c0392b}
+.made{text-align:center;margin-top:18px;color:#666;font-size:14px}
+.topic-info{text-align:center;margin-bottom:15px;color:#1f4e79;font-weight:bold}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Computer Science Revision Quiz</h1>
+<div class="sub">Test your Computer Science knowledge offline.</div>
+
+<div id="start" class="card">
+<label for="topic"><b>Choose a topic</b></label>
+<select id="topic"></select>
+<label for="mins"><b>Time limit</b></label>
+<select id="mins">
+<option value="5">5 minutes</option>
+<option value="10" selected>10 minutes</option>
+<option value="15">15 minutes</option>
+<option value="20">20 minutes</option>
+</select>
+<button class="full" onclick="startQuiz()">Start Quiz</button>
+</div>
+
+<div id="game" class="card hidden">
+<div class="top"><span id="qnum"></span><span id="score"></span><span id="time"></span></div>
+<div class="bar"><div id="prog"></div></div>
+<div class="topic-info" id="currentTopic"></div>
+<div class="q" id="question"></div>
+<div id="options"></div>
+<div id="feedback"></div>
+<button class="full" id="next" onclick="nextQ()" disabled>Next</button>
+</div>
+
+<div id="end" class="card hidden">
+<div class="big" id="final"></div>
+<p id="message" style="text-align:center;font-size:18px"></p>
+<button class="full" onclick="location.reload()">Try Again</button>
+</div>
+
+<div class="made">Made by <b>Chaps</b> © 2026</div>
+</div>
+
+<script>
+var questions=[
+{t:"Hardware",q:"Which part of the computer is known as the brain of the computer?",o:["RAM","CPU","Monitor","Keyboard"],a:1,e:"The CPU processes instructions and controls the computer."},
+{t:"Hardware",q:"Which of these is an input device?",o:["Printer","Monitor","Scanner","Speaker"],a:2,e:"A scanner is used to enter information into a computer."},
+{t:"Hardware",q:"Which memory loses its contents when power is switched off?",o:["ROM","RAM","Hard disk","Flash drive"],a:1,e:"RAM is volatile memory."},
+{t:"Hardware",q:"Which is an output device?",o:["Mouse","Keyboard","Projector","Microphone"],a:2,e:"A projector displays information from a computer."},
+{t:"Hardware",q:"Which device is mainly used to produce a hard copy?",o:["Monitor","Printer","Scanner","Mouse"],a:1,e:"A printer produces information on paper."},
+{t:"Hardware",q:"What does CPU stand for?",o:["Central Processing Unit","Computer Personal Unit","Central Program Utility","Computer Processing Utility"],a:0,e:"CPU stands for Central Processing Unit."},
+{t:"Hardware",q:"Which component stores data permanently?",o:["RAM","Cache","Hard drive","Register"],a:2,e:"A hard drive can store data even when the computer is switched off."},
+{t:"Hardware",q:"Which device is used to move the pointer on the screen?",o:["Printer","Mouse","Speaker","Scanner"],a:1,e:"A mouse controls the pointer on the screen."},
+{t:"Hardware",q:"What is the main function of a keyboard?",o:["Display information","Enter text and commands","Print documents","Store files"],a:1,e:"A keyboard is an input device used to enter text and commands."},
+{t:"Hardware",q:"Which unit is commonly used to measure computer storage?",o:["Byte","Hertz","Volt","Pixel"],a:0,e:"Storage capacity is measured in bytes and larger units such as KB, MB, GB and TB."},
+
+{t:"Software",q:"Which of these is an operating system?",o:["Windows","Excel","Chrome","PowerPoint"],a:0,e:"Windows is an operating system."},
+{t:"Software",q:"Which software is mainly used to create spreadsheets?",o:["Microsoft Word","Microsoft Excel","Paint","Notepad"],a:1,e:"Microsoft Excel is spreadsheet software."},
+{t:"Software",q:"Which software protects a computer against viruses?",o:["Compiler","Antivirus","Browser","Calculator"],a:1,e:"Antivirus software detects and helps remove malware."},
+{t:"Software",q:"Which is application software?",o:["Linux","Android","Microsoft PowerPoint","BIOS"],a:2,e:"PowerPoint is application software."},
+{t:"Software",q:"What is open-source software?",o:["Software that cannot be changed","Software whose source code can be viewed and modified","Software that only works online","Computer hardware"],a:1,e:"Open-source software makes its source code available for use and modification."},
+{t:"Software",q:"Which software is used to browse websites?",o:["Web browser","Spreadsheet","Compiler","Database"],a:0,e:"A web browser is used to access websites."},
+{t:"Software",q:"Which of these is system software?",o:["Windows","Excel","PowerPoint","Photoshop"],a:0,e:"Windows is system software."},
+{t:"Software",q:"What is a compiler used for?",o:["Printing documents","Translating source code","Playing music","Browsing websites"],a:1,e:"A compiler translates source code into machine code or another executable form."},
+
+{t:"Networks",q:"What does LAN stand for?",o:["Large Area Network","Local Area Network","Long Access Network","Linked Area Node"],a:1,e:"LAN stands for Local Area Network."},
+{t:"Networks",q:"Which device directs data between networks?",o:["Keyboard","Router","Monitor","Printer"],a:1,e:"A router directs data between different networks."},
+{t:"Networks",q:"Which of these is a web browser?",o:["Google Chrome","Windows","Excel","Python"],a:0,e:"Google Chrome is a web browser."},
+{t:"Networks",q:"What does WWW stand for?",o:["World Wide Web","Wide World Wire","Web World Window","World Web Wire"],a:0,e:"WWW stands for World Wide Web."},
+{t:"Networks",q:"Which transmission medium uses light to carry data?",o:["Copper cable","Fibre optic","Radio cassette","Paper"],a:1,e:"Fibre optic cables transmit data using light."},
+{t:"Networks",q:"What is the internet?",o:["A single computer","A global network of connected networks","A type of printer","A storage device"],a:1,e:"The internet is a global network of interconnected networks."},
+{t:"Networks",q:"What does Wi-Fi allow devices to do?",o:["Connect wirelessly to a network","Print without electricity","Increase RAM","Create documents"],a:0,e:"Wi-Fi provides wireless network connectivity."},
+{t:"Networks",q:"What is an IP address used for?",o:["Identifying a device on a network","Printing documents","Increasing storage","Playing music"],a:0,e:"An IP address identifies a device or network interface on a network."},
+
+{t:"Programming",q:"What is a programming language used for?",o:["Writing instructions for computers","Cleaning computers","Printing paper","Charging batteries"],a:0,e:"Programming languages are used to write instructions that computers can execute."},
+{t:"Programming",q:"Which of these is a programming language?",o:["Python","Windows","Google","Keyboard"],a:0,e:"Python is a programming language."},
+{t:"Programming",q:"What is a variable?",o:["A place used to store a value","A computer screen","A printer","A network cable"],a:0,e:"A variable stores a value that can be used by a program."},
+{t:"Programming",q:"What is a loop used for?",o:["Repeating instructions","Deleting a computer","Printing only","Turning off a monitor"],a:0,e:"Loops allow instructions to be repeated."},
+{t:"Programming",q:"What is an IF statement used for?",o:["Making a decision","Storing electricity","Displaying hardware","Connecting cables"],a:0,e:"An IF statement allows a program to make a decision based on a condition."},
+{t:"Programming",q:"What is an algorithm?",o:["A step-by-step procedure for solving a problem","A computer monitor","A storage device","A type of virus"],a:0,e:"An algorithm is a sequence of steps used to solve a problem."},
+{t:"Programming",q:"What is debugging?",o:["Finding and fixing errors in a program","Installing a keyboard","Deleting all files","Connecting to Wi-Fi"],a:0,e:"Debugging involves finding and correcting errors in programs."},
+
+{t:"Databases",q:"What is a database?",o:["An organised collection of data","A computer screen","A network cable","A programming language"],a:0,e:"A database stores organised information so it can be accessed and managed."},
+{t:"Databases",q:"What is a record in a database?",o:["A collection of related fields about one item","A computer virus","A network","A program"],a:0,e:"A record contains related information about one item or entity."},
+{t:"Databases",q:"What is a field?",o:["A single category of data in a record","A whole database","A printer","A network"],a:0,e:"A field stores one type or category of data."},
+{t:"Databases",q:"What is a primary key?",o:["A field that uniquely identifies each record","A password for Wi-Fi","A keyboard key","A computer cable"],a:0,e:"A primary key uniquely identifies each record."},
+{t:"Databases",q:"Which language is commonly used to query databases?",o:["HTML","SQL","CSS","Python"],a:1,e:"SQL is commonly used to create, retrieve and manage database data."},
+
+{t:"Cybersecurity",q:"What is malware?",o:["Malicious software","Computer hardware","A web browser","A programming language"],a:0,e:"Malware is software designed to harm, disrupt or gain unauthorised access."},
+{t:"Cybersecurity",q:"What is phishing?",o:["A fraudulent attempt to obtain sensitive information","A type of printer","A programming language","A storage device"],a:0,e:"Phishing commonly uses fake messages or websites to trick people into revealing information."},
+{t:"Cybersecurity",q:"Which is a strong password?",o:["123456","password","Chaps2026!Computer","qwerty"],a:2,e:"Strong passwords are generally longer and use a mixture of characters."},
+{t:"Cybersecurity",q:"What is a computer virus?",o:["A type of malicious program","A printer","An operating system","A network cable"],a:0,e:"A computer virus is malicious software that can replicate and spread."},
+{t:"Cybersecurity",q:"What does antivirus software help to do?",o:["Detect and remove malware","Increase screen size","Print documents","Create keyboards"],a:0,e:"Antivirus software helps detect and remove malicious software."},
+{t:"Cybersecurity",q:"What is two-factor authentication?",o:["Using two different forms of verification","Using two computers","Using two keyboards","Having two browsers"],a:0,e:"Two-factor authentication uses two verification factors to improve account security."},
+
+{t:"Data Representation",q:"What does binary use?",o:["Only 0 and 1","Numbers 1 to 9","Letters only","Colours only"],a:0,e:"Binary uses two digits: 0 and 1."},
+{t:"Data Representation",q:"How many bits are in one byte?",o:["4","8","16","32"],a:1,e:"One byte contains 8 bits."},
+{t:"Data Representation",q:"What is a bit?",o:["The smallest unit of digital data","A printer","A file","A program"],a:0,e:"A bit is a binary digit with a value of 0 or 1."},
+{t:"Data Representation",q:"Which number system uses base 2?",o:["Decimal","Binary","Hexadecimal","Denary"],a:1,e:"Binary is a base-2 number system."},
+{t:"Data Representation",q:"Which number system uses base 16?",o:["Binary","Decimal","Hexadecimal","Octal"],a:2,e:"Hexadecimal uses sixteen symbols, 0–9 and A–F."},
+
+{t:"Computer Ethics",q:"What is plagiarism?",o:["Using someone else's work without proper acknowledgement","Creating a password","Backing up files","Writing code"],a:0,e:"Plagiarism involves presenting another person's work as your own."},
+{t:"Computer Ethics",q:"What is copyright?",o:["Legal protection for original creative works","A type of virus","A computer cable","A network"],a:0,e:"Copyright provides legal protection for original creative works."},
+{t:"Computer Ethics",q:"What is privacy?",o:["The right to control personal information","A type of keyboard","A programming language","A storage device"],a:0,e:"Privacy concerns how personal information is collected, used and shared."},
+{t:"Computer Ethics",q:"Which is responsible use of a computer?",o:["Accessing another person's account without permission","Respecting other people's data","Spreading malware","Stealing passwords"],a:1,e:"Respecting other people's data is responsible computer use."},
+
+{t:"Web Development",q:"What does HTML stand for?",o:["HyperText Markup Language","HighText Machine Language","Hyperlink Text Management Language","Home Tool Markup Language"],a:0,e:"HTML stands for HyperText Markup Language."},
+{t:"Web Development",q:"What is CSS mainly used for?",o:["Styling web pages","Storing databases","Creating computer hardware","Sending emails"],a:0,e:"CSS controls the appearance and layout of web pages."},
+{t:"Web Development",q:"What is JavaScript commonly used for?",o:["Adding interaction to websites","Manufacturing keyboards","Storing electricity","Printing books"],a:0,e:"JavaScript can make websites interactive and dynamic."},
+{t:"Web Development",q:"Which HTML tag is commonly used for a heading?",o:["<h1>","<p>","<img>","<table>"],a:0,e:"The <h1> element is commonly used for the main heading."}
+];
+
+var list=[],idx=0,score=0,answered=false,left=0,timer=null;
+var $=function(id){return document.getElementById(id);};
+
+(function(){
+ var topics=[];
+ questions.forEach(function(x){if(topics.indexOf(x.t)===-1)topics.push(x.t);});
+ $("topic").innerHTML='<option value="All">All Computer Science Topics</option>'+
+ topics.map(function(t){return '<option value="'+t+'">'+t+'</option>';}).join("");
+})();
+
+function shuffle(a){
+ for(var i=a.length-1;i>0;i--){
+  var j=Math.floor(Math.random()*(i+1)),tmp=a[i];
+  a[i]=a[j];a[j]=tmp;
+ }
+ return a;
+}
+
+function startQuiz(){
+ var topic=$("topic").value;
+ list=questions.filter(function(x){return topic==="All"||x.t===topic;});
+ list=shuffle(list.slice());
+ idx=0;score=0;left=parseInt($("mins").value,10)*60;
+ $("start").classList.add("hidden");
+ $("game").classList.remove("hidden");
+ showTime();
+ timer=setInterval(function(){left--;showTime();if(left<=0)finish(true);},1000);
+ showQ();
+}
+
+function showTime(){
+ var m=Math.floor(left/60),s=left%60;
+ $("time").textContent="⏱ "+m+":"+(s<10?"0":"")+s;
+ $("time").className=left<=30?"low":"";
+}
+
+function showQ(){
+ var x=list[idx];answered=false;
+ $("qnum").textContent="Q "+(idx+1)+"/"+list.length;
+ $("score").textContent="Score: "+score;
+ $("prog").style.width=(idx/list.length*100)+"%";
+ $("currentTopic").textContent=x.t;
+ $("question").textContent=x.q;
+ $("feedback").style.display="none";
+ $("next").disabled=true;
+ $("next").textContent=idx===list.length-1?"Finish":"Next";
+ $("options").innerHTML="";
+
+ var answers=x.o.map(function(text,i){return{text:text,correct:i===x.a};});
+ shuffle(answers);
+
+ answers.forEach(function(item){
+  var b=document.createElement("button");
+  b.className="opt";
+  b.textContent=item.text;
+  b.onclick=function(){choose(item.correct,b);};
+  $("options").appendChild(b);
+ });
+}
+
+function choose(isCorrect,selectedButton){
+ if(answered)return;
+ answered=true;
+ var btns=$("options").children;
+ for(var k=0;k<btns.length;k++)btns[k].disabled=true;
+ var fb=$("feedback"),x=list[idx];
+
+ if(isCorrect){
+  selectedButton.classList.add("right");
+  score++;
+  fb.textContent="✅ Correct! "+x.e;
+ }else{
+  selectedButton.classList.add("wrong");
+  for(var j=0;j<btns.length;j++){
+   if(btns[j].textContent===x.o[x.a])btns[j].classList.add("right");
+  }
+  fb.textContent="❌ Not quite. "+x.e;
+ }
+ fb.style.display="block";
+ $("score").textContent="Score: "+score;
+ $("next").disabled=false;
+}
+
+function nextQ(){
+ idx++;
+ if(idx>=list.length)finish(false);else showQ();
+}
+
+function finish(timeUp){
+ clearInterval(timer);
+ $("game").classList.add("hidden");
+ $("end").classList.remove("hidden");
+ var pct=Math.round(score/list.length*100);
+ $("final").textContent=score+" / "+list.length+" ("+pct+"%)";
+ var msg=pct>=80?"Excellent work! Keep it up.":pct>=50?"Good effort! Review the questions you missed.":"Keep practising. Review your Computer Science notes and try again.";
+ $("message").textContent=(timeUp?"⏰ Time is up! ":"")+msg;
+}
+
+if("serviceWorker" in navigator){
+ window.addEventListener("load",function(){
+  navigator.serviceWorker.register("sw.js").catch(function(){});
+ });
+}
+</script>
+</body>
+</html>
